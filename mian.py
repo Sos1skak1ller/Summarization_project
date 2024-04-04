@@ -41,7 +41,7 @@ class MainWindow(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.setWindowTitle('Краткий пересказ')
+        self.setWindowTitle('Summarizer')
         self.setGeometry(100, 100, 800, 600)
         self.setStyleSheet("background-color: #ECFFFD;")
         # self.setWindowIcon(QIcon(''))
@@ -55,27 +55,27 @@ class MainWindow(QMainWindow):
         main_widget.setLayout(main_layout)
 
         # Download button whitout gardient
-        self.download_file_button = QPushButton('Загрузи файл', self)
-        self.download_file_button.setStyleSheet("QPushButton {background-color: #7ED3D9; border-radius: 10px; font-size: 14pt; color: #0019FF; font-weight: semi bold;}")
+        self.download_file_button = QPushButton('Upload file', self)
+        self.download_file_button.setStyleSheet("QPushButton {background-color: #7ED3D9; border-radius: 10px; font-size: 14pt; color: black; font-weight: semi bold;}")
 
         # Button for start algorithm
-        self.start_button = QPushButton('Генери!!!', self)
-        self.start_button.setStyleSheet("QPushButton {background-color: #7ED3D9; border-radius: 10px; font-size: 14pt; color: #0019FF; font-weight: semi bold;}")
+        self.start_button = QPushButton('Generate', self)
+        self.start_button.setStyleSheet("QPushButton {background-color: #7ED3D9; border-radius: 10px; font-size: 14pt; color: black; font-weight: semi bold;}")
 
         # Button for downlading answer
-        self.answer_download_button = QPushButton('Сохрани ответ', self)
-        self.answer_download_button.setStyleSheet("QPushButton {border-radius: 10px; background-color: #7ED3D9; font-size: 14pt; color: #0019FF; font-weight: semi bold;}")
+        self.answer_download_button = QPushButton('Save answer', self)
+        self.answer_download_button.setStyleSheet("QPushButton {border-radius: 10px; background-color: #7ED3D9; font-size: 14pt; color: black; font-weight: semi bold;}")
 
         # The list of refering methods
         self.list_refering_methods = QComboBox(self)
-        self.list_refering_methods.setStyleSheet("QComboBox {background-color: #7ED3D9; border-radius: 10px; font-size: 14pt; color: #0019FF; font-weight: semi bold;}")
+        self.list_refering_methods.setStyleSheet("QComboBox {background-color: #7ED3D9; border-radius: 10px; font-size: 14pt; color: black; font-weight: semi bold;}")
 
         #text widgets
-        self.request_text_frame = PlaceholderTextEdit('Вставь или напиши сюда текст который хочешь сократить', self)
-        self.request_text_frame.setStyleSheet("background-color: #C2D4D5; border-radius: 10px; font-size: 14pt; color: #5D69D5; font-weight: semi bold;")
+        self.request_text_frame = PlaceholderTextEdit('Insert your text here', self)
+        self.request_text_frame.setStyleSheet("background-color: #C2D4D5; border-radius: 10px; font-size: 14pt; color: black; font-weight: semi bold;")
 
-        self.answer_text_frame = PlaceholderTextEdit('Здесь будет краткое содержание', self)
-        self.answer_text_frame.setStyleSheet("background-color: #C2D4D5; border-radius: 10px; font-size: 14pt; color: #5D69D5; font-weight: semi bold;")
+        self.answer_text_frame = PlaceholderTextEdit('here will be your short version of text', self)
+        self.answer_text_frame.setStyleSheet("background-color: #C2D4D5; border-radius: 10px; font-size: 14pt; color: black; font-weight: semi bold;")
 
 
 
