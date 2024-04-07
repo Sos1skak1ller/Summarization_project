@@ -1,7 +1,22 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QMessageBox, QTextEdit, QVBoxLayout, QComboBox, QHBoxLayout
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QMessageBox, QTextEdit, QVBoxLayout, QComboBox, QHBoxLayout, QFileDialog
 from PyQt5.QtGui import QPainter, QLinearGradient, QIcon, QFont
 from PyQt5.QtCore import Qt
 import sys
+
+import nltk
+nltk.download('punkt')
+
+import sumy
+from sumy.parsers.plaintext import PlaintextParser
+from sumy.nlp.tokenizers import Tokenizer
+from sumy.nlp.stemmers import Stemmer
+from sumy.utils import get_stop_words
+from sumy.summarizers.lsa import LsaSummarizer
+from sumy.summarizers.lex_rank import LexRankSummarizer
+from sumy.summarizers.luhn import LuhnSummarizer
+
+LANGUAGE = "russian"
+SENTECES_COUNT = 1
 
 #Наверно стоит написать этот класс в отдельном файле но это пока шаблон
 # class GradientButton(QPushButton):
@@ -46,6 +61,33 @@ class MainWindow(QMainWindow):
         self.setStyleSheet("background-color: #ECFFFD;")
         # self.setWindowIcon(QIcon(''))
 
+        # Download button whitout gardient
+        self.download_file_button = QPushButton('Upload file', self)
+        self.download_file_button.setStyleSheet("QPushButton {background-color: #7ED3D9; border-radius: 10px; font-size: 14pt; color: black; font-weight: semi bold;}")
+        # self.download_file_button.connect(self.download_file_button_click)
+
+        # The list of refering methods
+        self.list_refering_methods = QComboBox(self)
+        self.list_refering_methods.setStyleSheet("QComboBox {background-color: #7ED3D9; border-radius: 10px; font-size: 14pt; color: black; font-weight: semi bold;}")
+        self.list_refering_methods.addItems(["LSA", "Lung", "LexRank"])
+
+        # Button for start algorithm
+        self.start_button = QPushButton('Generate', self)
+        self.start_button.setStyleSheet("QPushButton {background-color: #7ED3D9; border-radius: 10px; font-size: 14pt; color: black; font-weight: semi bold;}")
+        self.start_button.clicked.connect(self.start_button_click)
+
+        # Button for downlading answer
+        self.answer_download_button = QPushButton('Save answer', self)
+        self.answer_download_button.setStyleSheet("QPushButton {border-radius: 10px; background-color: #7ED3D9; font-size: 14pt; color: black; font-weight: semi bold;}")
+        # self.answer_download_button.connect(self.answer_download_button_click)
+
+        #text widgets
+        self.request_text_frame = PlaceholderTextEdit('Insert your text here', self)
+        self.request_text_frame.setStyleSheet("background-color: #C2D4D5; border-radius: 10px; font-size: 14pt; color: black; font-weight: semi bold;")
+
+        self.answer_text_frame = PlaceholderTextEdit('Here will be your short version of text', self)
+        self.answer_text_frame.setStyleSheet("background-color: #C2D4D5; border-radius: 10px; font-size: 14pt; color: black; font-weight: semi bold;")
+
         # Создание основного виджета
         main_widget = QWidget()
         self.setCentralWidget(main_widget)
@@ -53,31 +95,6 @@ class MainWindow(QMainWindow):
         # Создание вертикального макета для основного виджета
         main_layout = QVBoxLayout()
         main_widget.setLayout(main_layout)
-
-        # Download button whitout gardient
-        self.download_file_button = QPushButton('Upload file', self)
-        self.download_file_button.setStyleSheet("QPushButton {background-color: #7ED3D9; border-radius: 10px; font-size: 14pt; color: black; font-weight: semi bold;}")
-
-        # Button for start algorithm
-        self.start_button = QPushButton('Generate', self)
-        self.start_button.setStyleSheet("QPushButton {background-color: #7ED3D9; border-radius: 10px; font-size: 14pt; color: black; font-weight: semi bold;}")
-
-        # Button for downlading answer
-        self.answer_download_button = QPushButton('Save answer', self)
-        self.answer_download_button.setStyleSheet("QPushButton {border-radius: 10px; background-color: #7ED3D9; font-size: 14pt; color: black; font-weight: semi bold;}")
-
-        # The list of refering methods
-        self.list_refering_methods = QComboBox(self)
-        self.list_refering_methods.setStyleSheet("QComboBox {background-color: #7ED3D9; border-radius: 10px; font-size: 14pt; color: black; font-weight: semi bold;}")
-
-        #text widgets
-        self.request_text_frame = PlaceholderTextEdit('Insert your text here', self)
-        self.request_text_frame.setStyleSheet("background-color: #C2D4D5; border-radius: 10px; font-size: 14pt; color: black; font-weight: semi bold;")
-
-        self.answer_text_frame = PlaceholderTextEdit('here will be your short version of text', self)
-        self.answer_text_frame.setStyleSheet("background-color: #C2D4D5; border-radius: 10px; font-size: 14pt; color: black; font-weight: semi bold;")
-
-
 
         # Download button whith gardient
         # self.button = GradientButton('Загрузи файл', self)
@@ -100,6 +117,44 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.answer_text_frame)
         main_layout.addLayout(answer_button_layout)
         self.show()
+
+    def start_button_click(self):
+        self.answer_text_frame.clear()
+        if self.request_text_frame.toPlainText():
+            parser = PlaintextParser.from_string(str(self.request_text_frame.toPlainText()), Tokenizer(LANGUAGE))
+            stemmer = Stemmer(LANGUAGE)
+            selected_variant_of_refering_methods = self.list_refering_methods.currentText()
+            if selected_variant_of_refering_methods == "LSA":
+                lsa_summarizer = LsaSummarizer(stemmer)
+                lsa_summarizer.stop_words = get_stop_words(LANGUAGE)
+                for sentence in lsa_summarizer(parser.document, SENTECES_COUNT):
+                    self.answer_text_frame.append(str(sentence))
+            elif selected_variant_of_refering_methods == "Lung":
+                summarizer_luhn = LuhnSummarizer()
+                summary_1 = summarizer_luhn(parser.document, SENTECES_COUNT)
+                for sentence in summary_1:
+                    self.answer_text_frame.append(str(sentence))
+            elif selected_variant_of_refering_methods == "LexRank":
+                summarizer = LexRankSummarizer()
+                lex_summary = summarizer(parser.document, SENTECES_COUNT)
+                for sentence in lex_summary:
+                    self.answer_text_frame.append(str(sentence))
+        else:
+            self.answer_text_frame.append("You don't write a text in first frame or don't download a file")
+
+    # def download_file_button_click(self):
+    #     return
+    #
+    #
+    # def answer_download_button_click(self):
+    #     if self.answer_text_frame.toPlainText():
+    #         options = QFileDialog.Options()
+    #         options |= QFileDialog.DontUseNativeDialog
+    #         file_name, _ = QFileDialog.getOpenFileName(self, "Выберите файл", "", "All Files (*);;Text Files (*.txt)", options=options)
+    #         if file_name:
+    #             self.selected_file_path = file_name
+    #     else:
+    #         self.answer_text_frame.append("You don't have anything to save")
 
 
 if __name__ == '__main__':
