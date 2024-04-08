@@ -59,12 +59,12 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('Summarizer')
         self.setGeometry(100, 100, 800, 600)
         self.setStyleSheet("background-color: #ECFFFD;")
-        # self.setWindowIcon(QIcon(''))
+        self.setWindowIcon(QIcon(''))
 
         # Download button whitout gardient
         self.download_file_button = QPushButton('Upload file', self)
         self.download_file_button.setStyleSheet("QPushButton {background-color: #7ED3D9; border-radius: 10px; font-size: 14pt; color: black; font-weight: semi bold;}")
-        # self.download_file_button.connect(self.download_file_button_click)
+        self.download_file_button.clicked.connect(self.download_file_button_click)
 
         # The list of refering methods
         self.list_refering_methods = QComboBox(self)
@@ -79,7 +79,7 @@ class MainWindow(QMainWindow):
         # Button for downlading answer
         self.answer_download_button = QPushButton('Save answer', self)
         self.answer_download_button.setStyleSheet("QPushButton {border-radius: 10px; background-color: #7ED3D9; font-size: 14pt; color: black; font-weight: semi bold;}")
-        # self.answer_download_button.connect(self.answer_download_button_click)
+        self.answer_download_button.clicked.connect(self.answer_download_button_click)
 
         #text widgets
         self.request_text_frame = PlaceholderTextEdit('Insert your text here', self)
@@ -142,19 +142,28 @@ class MainWindow(QMainWindow):
         else:
             self.answer_text_frame.append("You don't write a text in first frame or don't download a file")
 
-    # def download_file_button_click(self):
-    #     return
-    #
-    #
-    # def answer_download_button_click(self):
-    #     if self.answer_text_frame.toPlainText():
-    #         options = QFileDialog.Options()
-    #         options |= QFileDialog.DontUseNativeDialog
-    #         file_name, _ = QFileDialog.getOpenFileName(self, "Выберите файл", "", "All Files (*);;Text Files (*.txt)", options=options)
-    #         if file_name:
-    #             self.selected_file_path = file_name
-    #     else:
-    #         self.answer_text_frame.append("You don't have anything to save")
+    def download_file_button_click(self):
+        options = QFileDialog.Options()
+        fileName, _ = QFileDialog.getOpenFileName(self, "Open Text File", "", "Text Files (*.txt);;All Files (*)", options=options)
+        if fileName:
+            try:
+                with open(fileName, 'r') as file:
+                    text = file.read()
+                    self.request_text_frame.setText(text)
+            except Exception as e:
+                self.answer_text_frame.clear()
+                self.answer_text_frame.append("Error loading file: " + str(e))
+    def answer_download_button_click(self):
+        options = QFileDialog.Options()
+        fileName, _ = QFileDialog.getSaveFileName(self, "Save Text File", "", "Text Files (*.txt);;All Files (*)", options=options)
+        if fileName:
+            try:
+                text = self.textEdit.toPlainText()
+                with open(fileName, 'w') as file:
+                    file.write(text)
+            except Exception as e:
+                self.answer_text_frame.clear()
+                self.textEdit.setText("Error saving file: " + str(e))
 
 
 if __name__ == '__main__':
