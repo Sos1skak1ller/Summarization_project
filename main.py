@@ -149,6 +149,7 @@ class MainWindow(QMainWindow):
             try:
                 with open(fileName, 'r') as file:
                     text = file.read()
+                    self.request_text_frame.clear()
                     self.request_text_frame.setText(text)
             except Exception as e:
                 self.answer_text_frame.clear()
