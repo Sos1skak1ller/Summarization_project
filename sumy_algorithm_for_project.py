@@ -8,7 +8,9 @@ from sumy.summarizers.lsa import LsaSummarizer
 from sumy.summarizers.lex_rank import LexRankSummarizer
 from sumy.summarizers.luhn import LuhnSummarizer
 LANGUAGE = "russian"
-SENTECES_COUNT = 1
+print("Введите желаемое количество предложений до которого хотите сократить текст ")
+
+SENTECES_COUNT = int(input())
 
 
 print("1.LSA")
@@ -40,4 +42,5 @@ lex_summary = summarizer(parser.document, SENTECES_COUNT)
 if (a == 3):
     for sentence in lex_summary:
         print(sentence)
+
 
