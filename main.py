@@ -8,7 +8,7 @@ import nltk
 nltk.download('punkt')
 
 LANGUAGE = "russian"
-SENTECES_COUNT = 1
+SENTENCES_COUNT = 1
 
 class PlaceholderTextEdit(QTextEdit):
     def __init__(self, placeholder_text, parent=None):
@@ -34,13 +34,13 @@ class MainWindow(QMainWindow):
     def initUI(self):
         self.setWindowTitle('Summarizer')
         self.setGeometry(100, 100, 800, 600)
-        self.setWindowIcon(QIcon(''))
+        self.setWindowIcon(QIcon('path/to/icon.png'))  # Укажите правильный путь к иконке
 
         self.download_file_button = QPushButton('Upload file', self)
         self.download_file_button.clicked.connect(self.download_file_button_click)
 
         self.list_refering_methods = QComboBox(self)
-        self.list_refering_methods.addItems(["LSA", "Luhn", "LexRank"])
+        self.list_refering_methods.addItems(["lsa", "luhn", "lexrank"])
 
         self.start_button = QPushButton('Generate', self)
         self.start_button.clicked.connect(self.start_button_click)
@@ -75,12 +75,16 @@ class MainWindow(QMainWindow):
 
     def start_button_click(self):
         self.answer_text_frame.clear()
-        if self.request_text_frame.toPlainText():
+        input_text = self.request_text_frame.toPlainText()
+        if input_text:
             selected_variant_of_refering_methods = self.list_refering_methods.currentText()
-            num_sentences = 1
-            summary = sumy_algorithm.summarize_text("input.txt", num_sentences, selected_variant_of_refering_methods)
-            for sentence in summary:
-                self.answer_text_frame.append(str(sentence))
+            num_sentences = SENTENCES_COUNT
+            summary = sumy_algorithm.summarize_text(input_text, num_sentences, selected_variant_of_refering_methods)
+            if summary:  # Проверка на наличие результата
+                for sentence in summary:
+                    self.answer_text_frame.append(str(sentence))
+            else:
+                self.answer_text_frame.append("Error in summarizing the text.")
         else:
             self.answer_text_frame.append("You don't write a text in first frame or don't download a file")
 
@@ -97,13 +101,14 @@ class MainWindow(QMainWindow):
             except Exception as e:
                 self.answer_text_frame.clear()
                 self.answer_text_frame.append("Error loading file: " + str(e))
+
     def answer_download_button_click(self):
         options = QFileDialog.Options()
         fileName, _ = QFileDialog.getSaveFileName(self, "Save Text File", "", "Text Files (*.txt);;All Files (*)", options=options)
         if fileName:
             try:
                 text = self.answer_text_frame.toPlainText()
-                with open(fileName, 'w') as file:
+                with open(fileName, 'w', encoding='utf-8') as file:  # Укажите кодировку utf-8
                     file.write(text)
             except Exception as e:
                 self.answer_text_frame.clear()
