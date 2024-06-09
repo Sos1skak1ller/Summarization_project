@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QTextEdit, QVBoxLayout, QComboBox, QHBoxLayout, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QTextEdit, QVBoxLayout, QComboBox, QHBoxLayout, QFileDialog, QLineEdit, QLabel
 from PyQt5.QtGui import QIcon
 import sys
 
@@ -43,6 +43,9 @@ class MainWindow(QMainWindow):
         self.upload_weights_button = QPushButton('Upload word weights', self)
         self.upload_weights_button.clicked.connect(self.upload_weights_button_click)
 
+        self.num_sentences_input = QLineEdit(self)
+        self.num_sentences_input.setPlaceholderText("Number of sentences")
+
         self.list_refering_methods = QComboBox(self)
         self.list_refering_methods.addItems(["lsa", "luhn", "lexrank"])
 
@@ -64,7 +67,7 @@ class MainWindow(QMainWindow):
         button_list_layout = QHBoxLayout()
         button_list_layout.addWidget(self.download_file_button)
         button_list_layout.addWidget(self.upload_weights_button)
-        button_list_layout.addSpacing(140)
+        button_list_layout.addWidget(self.num_sentences_input)
         button_list_layout.addWidget(self.list_refering_methods)
         button_list_layout.addWidget(self.start_button)
 
@@ -83,7 +86,11 @@ class MainWindow(QMainWindow):
         input_text = self.request_text_frame.toPlainText()
         if input_text:
             selected_variant_of_refering_methods = self.list_refering_methods.currentText()
-            num_sentences = SENTENCES_COUNT
+            try:
+                num_sentences = int(self.num_sentences_input.text())
+            except ValueError:
+                num_sentences = SENTENCES_COUNT
+
             summary = sumy_algorithm.summarize_text(input_text, num_sentences, selected_variant_of_refering_methods, self.word_weights_path)
             if summary:  # Проверка на наличие результата
                 for sentence in summary:
