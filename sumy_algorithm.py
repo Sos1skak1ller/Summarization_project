@@ -4,17 +4,21 @@ from sumy.nlp.stemmers import Stemmer
 from sumy.utils import get_stop_words
 from sumy.summarizers.lsa import LsaSummarizer
 from sumy.summarizers.lex_rank import LexRankSummarizer
-from tokenizer import tokenize_sentences, calculate_sentence_importance, extract_keywords
+from tokenizer import tokenize_sentences, calculate_sentence_importance, extract_keywords, save_word_weights, load_word_weights
+import os
 
 LANGUAGE = "russian"
 
 def luhn_summarizer(text, num_sentences, word_weights_path=None):
     sentences = tokenize_sentences(text)
     
-    if word_weights_path:
+    if word_weights_path and os.path.exists(word_weights_path):
         word_idf = load_word_weights(word_weights_path)
     else:
         word_idf = extract_keywords(text)
+        if not word_weights_path:
+            word_weights_path = "word_weights.json"
+        save_word_weights(word_idf, word_weights_path)
     
     sentence_scores = [(sentence, calculate_sentence_importance(sentence, word_idf)) for sentence in sentences]
     sentence_scores = sorted(sentence_scores, key=lambda x: x[1], reverse=True)

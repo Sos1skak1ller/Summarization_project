@@ -5,6 +5,8 @@ import nltk
 from nltk import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
+import json
+import os
 
 # Загрузка стоп-слов и инициализация стеммера для русского языка
 nltk.download('punkt')
@@ -36,8 +38,11 @@ def extract_keywords(text):
     word_idf = {word: math.log10(total_documents / (1 + word_frequencies[word])) for word in word_frequencies}
     return word_idf
 
+def save_word_weights(word_idf, json_path):
+    with open(json_path, 'w', encoding='utf-8') as file:
+        json.dump(word_idf, file, ensure_ascii=False, indent=4)
+
 def load_word_weights(json_path):
-    import json
     with open(json_path, 'r', encoding='utf-8') as file:
         word_weights = json.load(file)
     return word_weights
