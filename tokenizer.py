@@ -1,22 +1,27 @@
-# tokenizer.py
 import re
 import math
 from collections import Counter
-from razdel import sentenize
-from pymorphy2 import MorphAnalyzer
+import nltk
+from nltk import sent_tokenize, word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import SnowballStemmer
 
-morph = MorphAnalyzer()
+# Загрузка стоп-слов и инициализация стеммера для русского языка
+nltk.download('punkt')
+nltk.download('stopwords')
+stemmer = SnowballStemmer("russian")
+stop_words = set(stopwords.words("russian"))
 
 def tokenize_sentences(text):
-    sentences = [sentence.text for sentence in sentenize(text)]
-    return sentences 
+    sentences = sent_tokenize(text)
+    return sentences
 
 def lemmatize(word):
-    return morph.parse(word)[0].normal_form
+    return stemmer.stem(word)
 
 def calculate_sentence_importance(sentence, word_idf):
-    words = re.findall(r'\b\w+\b', sentence.lower())
-    words = [lemmatize(word) for word in words]
+    words = word_tokenize(sentence.lower())
+    words = [lemmatize(word) for word in words if word.isalnum() and word not in stop_words]
     sentence_length = len(words)
     if sentence_length == 0:
         return 0
@@ -24,8 +29,8 @@ def calculate_sentence_importance(sentence, word_idf):
     return sentence_importance
 
 def extract_keywords(text):
-    words = re.findall(r'\b\w+\b', text.lower())
-    words = [lemmatize(word) for word in words]
+    words = word_tokenize(text.lower())
+    words = [lemmatize(word) for word in words if word.isalnum() and word not in stop_words]
     word_frequencies = Counter(words)
     total_documents = len(tokenize_sentences(text))
     word_idf = {word: math.log10(total_documents / (1 + word_frequencies[word])) for word in word_frequencies}
