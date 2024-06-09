@@ -9,7 +9,7 @@ morph = MorphAnalyzer()
 
 def tokenize_sentences(text):
     sentences = [sentence.text for sentence in sentenize(text)]
-    return sentences
+    return sentences 
 
 def lemmatize(word):
     return morph.parse(word)[0].normal_form
